@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Bell, Menu, X } from "lucide-react";
@@ -176,7 +175,6 @@ const Navbar = () => {
         </div>
       </div>
 
-      {/* Mobile menu */}
       {isMenuOpen && (
         <div className="sm:hidden">
           <div className="pt-2 pb-3 space-y-1">
