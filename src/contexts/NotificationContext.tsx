@@ -1,6 +1,6 @@
 
 import React, { createContext, useContext, useState } from "react";
-import { toast } from "@/components/ui/sonner";
+import { toast } from "sonner";
 
 type Notification = {
   id: string;

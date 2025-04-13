@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { useAuth } from "./AuthContext";
 import { useNotifications } from "./NotificationContext";
@@ -40,7 +39,6 @@ export const ServiceRequestProvider: React.FC<{ children: React.ReactNode }> = (
   const [activeRequest, setActiveRequest] = useState<ServiceRequest | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  // Load saved requests from localStorage
   useEffect(() => {
     const savedRequests = localStorage.getItem("roadrescue-requests");
     if (savedRequests) {
@@ -51,7 +49,6 @@ export const ServiceRequestProvider: React.FC<{ children: React.ReactNode }> = (
       }));
       setRequests(parsedRequests);
 
-      // Find active request for current user
       if (user) {
         const activeReq = parsedRequests.find(
           (req: ServiceRequest) => 
@@ -64,7 +61,6 @@ export const ServiceRequestProvider: React.FC<{ children: React.ReactNode }> = (
     }
   }, [user]);
 
-  // Save requests to localStorage whenever they change
   useEffect(() => {
     localStorage.setItem("roadrescue-requests", JSON.stringify(requests));
   }, [requests]);
@@ -78,7 +74,6 @@ export const ServiceRequestProvider: React.FC<{ children: React.ReactNode }> = (
     
     setIsLoading(true);
     
-    // Simulate API delay
     await new Promise(resolve => setTimeout(resolve, 1000));
     
     const newRequest: ServiceRequest = {
@@ -102,7 +97,6 @@ export const ServiceRequestProvider: React.FC<{ children: React.ReactNode }> = (
     
     setIsLoading(false);
     
-    // Simulate provider accepting the request after a delay (for demo purposes)
     if (process.env.NODE_ENV !== "production") {
       setTimeout(() => {
         acceptRequest(newRequest.id, "provider-123", Math.floor(Math.random() * 15) + 5);
@@ -113,7 +107,6 @@ export const ServiceRequestProvider: React.FC<{ children: React.ReactNode }> = (
   const cancelRequest = async (requestId: string) => {
     setIsLoading(true);
     
-    // Simulate API delay
     await new Promise(resolve => setTimeout(resolve, 1000));
     
     setRequests(prev => 
@@ -140,7 +133,6 @@ export const ServiceRequestProvider: React.FC<{ children: React.ReactNode }> = (
   const acceptRequest = async (requestId: string, providerId: string, estimatedMinutes: number) => {
     setIsLoading(true);
     
-    // Simulate API delay
     await new Promise(resolve => setTimeout(resolve, 1000));
     
     const estimatedArrival = new Date();
@@ -151,7 +143,7 @@ export const ServiceRequestProvider: React.FC<{ children: React.ReactNode }> = (
         req.id === requestId 
           ? { 
               ...req, 
-              status: "accepted", 
+              status: "accepted" as const, 
               providerId, 
               estimatedArrival 
             } 
@@ -161,13 +153,12 @@ export const ServiceRequestProvider: React.FC<{ children: React.ReactNode }> = (
     
     const updatedRequest = requests.find(req => req.id === requestId);
     if (updatedRequest) {
-      const updatedWithAccept = {
+      setActiveRequest({
         ...updatedRequest,
         status: "accepted",
         providerId,
         estimatedArrival
-      };
-      setActiveRequest(updatedWithAccept);
+      });
       
       addNotification(
         "Request Accepted",
@@ -178,13 +169,12 @@ export const ServiceRequestProvider: React.FC<{ children: React.ReactNode }> = (
     
     setIsLoading(false);
     
-    // Simulate starting service after a delay (for demo purposes)
     if (process.env.NODE_ENV !== "production") {
       setTimeout(() => {
         setRequests(prev => 
           prev.map(req => 
             req.id === requestId 
-              ? { ...req, status: "inProgress" } 
+              ? { ...req, status: "inProgress" as const } 
               : req
           )
         );
@@ -209,7 +199,6 @@ export const ServiceRequestProvider: React.FC<{ children: React.ReactNode }> = (
   const completeRequest = async (requestId: string) => {
     setIsLoading(true);
     
-    // Simulate API delay
     await new Promise(resolve => setTimeout(resolve, 1000));
     
     setRequests(prev => 
