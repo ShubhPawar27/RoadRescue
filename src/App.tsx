@@ -16,6 +16,7 @@ import ActiveRequest from "./pages/ActiveRequest";
 import UserRequests from "./pages/UserRequests";
 import ProviderDashboard from "./pages/ProviderDashboard";
 import AdminDashboard from "./pages/AdminDashboard";
+import Profile from "./pages/Profile";
 import Help from "./pages/Help";
 import NotFound from "./pages/NotFound";
 
@@ -46,6 +47,7 @@ const App = () => (
                   <Route path="/request" element={<ServiceRequest />} />
                   <Route path="/user/active-request" element={<ActiveRequest />} />
                   <Route path="/user/requests" element={<UserRequests />} />
+                  <Route path="/profile" element={<Profile />} />
                   <Route path="/provider/dashboard" element={<ProviderDashboard />} />
                   <Route path="/admin/dashboard" element={<AdminDashboard />} />
                   <Route path="/help" element={<Help />} />
