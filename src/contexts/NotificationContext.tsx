@@ -40,14 +40,30 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
 
     setNotifications((prev) => [newNotification, ...prev]);
 
-    // Show toast for the notification
-    toast(title, {
-      description: message,
-      action: {
-        label: "View",
-        onClick: () => markAsRead(newNotification.id),
-      },
-    });
+    // Show toast for the notification with different styling based on type
+    if (type === "emergency") {
+      toast(title, {
+        description: message,
+        action: {
+          label: "View",
+          onClick: () => markAsRead(newNotification.id),
+        },
+        className: "bg-emergency text-white border-2 border-emergency",
+        duration: 10000, // 10 seconds for emergency notifications
+      });
+      
+      // Play alarm sound for emergency notifications
+      const audio = new Audio("/emergency-alert.mp3");
+      audio.play().catch(error => console.error("Could not play alert sound:", error));
+    } else {
+      toast(title, {
+        description: message,
+        action: {
+          label: "View",
+          onClick: () => markAsRead(newNotification.id),
+        },
+      });
+    }
   };
 
   const markAsRead = (id: string) => {

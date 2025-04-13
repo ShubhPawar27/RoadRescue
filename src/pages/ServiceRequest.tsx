@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation as useRouterLocation } from "react-router-dom";
-import { Wrench, MapPin, Car, Loader2 } from "lucide-react";
+import { Wrench, MapPin, Car, Loader2, AlertCircle, Ambulance } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -39,6 +39,7 @@ const ServiceRequest = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   
   const serviceType = routerLocation.state?.serviceType as ServiceType || "other";
+  const isEmergency = routerLocation.state?.isEmergency || false;
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -57,7 +58,12 @@ const ServiceRequest = () => {
     if (!currentLocation && !locationError) {
       getLocation();
     }
-  }, [isAuthenticated, serviceType, currentLocation, locationError, navigate, addNotification, getLocation]);
+    
+    // For emergency requests, auto-fill the description
+    if (isEmergency && serviceType === "ambulance") {
+      setDescription("EMERGENCY REQUEST - Immediate medical assistance needed!");
+    }
+  }, [isAuthenticated, serviceType, currentLocation, locationError, navigate, addNotification, getLocation, isEmergency]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -99,6 +105,15 @@ const ServiceRequest = () => {
         : { latitude: currentLocation!.latitude, longitude: currentLocation!.longitude };
 
       await createRequest(serviceType, description, locationData);
+      
+      if (isEmergency) {
+        addNotification(
+          "Emergency Services Notified",
+          "Help is on the way. Stay in a safe location.",
+          "emergency"
+        );
+      }
+      
       navigate("/user/active-request");
     } catch (error) {
       console.error("Failed to create service request:", error);
@@ -116,20 +131,26 @@ const ServiceRequest = () => {
     <Layout>
       <div className="container mx-auto px-4 py-12">
         <div className="max-w-2xl mx-auto">
-          <Card>
+          <Card className={isEmergency ? "border-emergency border-2" : ""}>
             <CardHeader>
               <div className="flex items-center">
                 <div className="mr-4">
-                  {serviceType === "towing" ? (
+                  {serviceType === "ambulance" ? (
+                    <Ambulance className={`h-8 w-8 ${isEmergency ? "text-emergency animate-pulse" : "text-emergency"}`} />
+                  ) : serviceType === "towing" ? (
                     <Car className="h-8 w-8 text-services" />
                   ) : (
                     <Wrench className="h-8 w-8 text-rescue" />
                   )}
                 </div>
                 <div>
-                  <CardTitle className="text-2xl">Request {serviceTypeLabels[serviceType]}</CardTitle>
+                  <CardTitle className="text-2xl">
+                    {isEmergency ? "EMERGENCY REQUEST" : `Request ${serviceTypeLabels[serviceType]}`}
+                  </CardTitle>
                   <CardDescription>
-                    Please provide details about your situation for faster assistance
+                    {isEmergency 
+                      ? "Your emergency request will be prioritized by our system"
+                      : "Please provide details about your situation for faster assistance"}
                   </CardDescription>
                 </div>
               </div>
@@ -145,6 +166,7 @@ const ServiceRequest = () => {
                     onChange={(e) => setDescription(e.target.value)}
                     rows={4}
                     required
+                    className={isEmergency ? "border-emergency" : ""}
                   />
                 </div>
 
@@ -156,12 +178,13 @@ const ServiceRequest = () => {
                       variant="outline"
                       size="sm"
                       onClick={() => setUseManualLocation(!useManualLocation)}
+                      disabled={isEmergency} // Disable manual location in emergency mode
                     >
                       {useManualLocation ? "Use GPS Location" : "Enter Manually"}
                     </Button>
                   </div>
 
-                  {useManualLocation ? (
+                  {useManualLocation && !isEmergency ? (
                     <div className="space-y-2">
                       <Input
                         placeholder="Enter your address or location description"
@@ -213,27 +236,41 @@ const ServiceRequest = () => {
             </CardContent>
             <CardFooter className="flex flex-col space-y-4">
               <Button
-                className="w-full"
+                className={`w-full ${isEmergency ? "bg-emergency hover:bg-emergency/90" : ""}`}
                 onClick={handleSubmit}
                 disabled={isSubmitting || requestLoading || (locationLoading && !useManualLocation)}
               >
                 {isSubmitting || requestLoading ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Submitting Request...
+                    {isEmergency ? "Sending Emergency Request..." : "Submitting Request..."}
                   </>
                 ) : (
-                  "Submit Request"
+                  isEmergency ? "Send Emergency Request" : "Submit Request"
                 )}
               </Button>
-              <Button
-                variant="outline"
-                className="w-full"
-                type="button"
-                onClick={() => navigate("/services")}
-              >
-                Cancel
-              </Button>
+              
+              {!isEmergency && (
+                <Button
+                  variant="outline"
+                  className="w-full"
+                  type="button"
+                  onClick={() => navigate("/services")}
+                >
+                  Cancel
+                </Button>
+              )}
+              
+              {isEmergency && (
+                <div className="bg-emergency/10 p-4 rounded-md border border-emergency/30 mt-4">
+                  <div className="flex items-start">
+                    <AlertCircle className="h-5 w-5 text-emergency mr-2 mt-0.5" />
+                    <p className="text-sm">
+                      <strong>Emergency mode:</strong> Your request will be prioritized and sent to all available service providers in your area.
+                    </p>
+                  </div>
+                </div>
+              )}
               
               <div className="text-center text-xs text-gray-500 mt-4">
                 By submitting this request, you agree to our <a href="/terms" className="text-services hover:underline">Terms of Service</a>
