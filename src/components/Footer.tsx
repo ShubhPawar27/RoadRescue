@@ -1,4 +1,3 @@
-
 import { Link } from "react-router-dom";
 import { Facebook, Twitter, Instagram, Github } from "lucide-react";
 
@@ -19,10 +18,10 @@ const Footer = () => {
               <a href="#" className="text-gray-300 hover:text-white">
                 <Twitter className="h-5 w-5" />
               </a>
-              <a href="#" className="text-gray-300 hover:text-white">
+              <a href="https://www.instagram.com/shubhpawar_27?igsh=MWhvM2dhNzlldTN3cw==" className="text-gray-300 hover:text-white" target="_blank" rel="noopener noreferrer">
                 <Instagram className="h-5 w-5" />
               </a>
-              <a href="#" className="text-gray-300 hover:text-white">
+              <a href="https://github.com/ShubhPawar27" className="text-gray-300 hover:text-white" target="_blank" rel="noopener noreferrer">
                 <Github className="h-5 w-5" />
               </a>
             </div>
